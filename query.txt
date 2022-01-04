@@ -1,0 +1,141 @@
+GET korea-qa/_search
+{
+  "query": {
+    "match_all": {}
+  }
+}
+
+
+GET korea-qa/_search
+{
+    "size": 1, 
+    "query": {
+        "match": {
+            "document": {
+                "query":    "재미있고",
+                "analyzer": "korean_analyzer"
+            }
+        }
+    }
+}
+
+
+GET korea-qa/_search
+{
+    "size": 1, 
+    "query": {
+        "match": {
+            "document": {
+                "query":    "재미있고",
+                "analyzer": "ngram_analyzer"
+            }
+        }
+    }
+}
+
+
+GET korea-qa/_analyze
+{
+  "analyzer": "korean_analyzer",
+  "text": "동해물과 백두산이 마르고 닳도록 하느님이 보우하사 우리나라 만세"  
+}
+
+
+GET korea-qa/_analyze
+{
+  "analyzer": "ngram_analyzer",
+  "text": "동해물과 백두산이 마르고 닳도록 하느님이 보우하사 우리나라 만세"  
+}
+
+
+DELETE korea-qa
+
+
+GET korea-qa/_settings
+
+
+curl -XGET http://localhost:9200/test/_search?pretty -H 'content-type: application/json' -d '
+{
+  "query": {
+    "multi_match" : {
+      "query": "닳도",
+      "fields": [ "ngram" ]
+    }
+  }
+}
+
+curl -XGET http://localhost:9200/test/_search?pretty -H 'content-type: application/json' -d '
+{
+  "query": {
+    "multi_match" : {
+      "query": "백두",
+      "fields": [ "nori", "ngram" ]
+    }
+  }
+}
+
+curl -XPOST http://localhost:9200/test/_analyze?pretty -H 'content-type: application/json' -d '
+{
+  "analyzer": "nori_analyzer",
+  "text": "동해물과 백두산이 마르고 닳도록 하느님이 보우하사 우리나라 만세"
+}
+
+curl -XGET http://localhost:9200/test/_search?pretty -H 'content-type: application/json' -d '
+{
+  "query": {
+    "wildcard": {
+      "nori": {
+        "value": "*백두*"
+      }
+    }
+  }
+}
+
+curl -XPUT http://localhost:9200/test -H 'content-type: application/json' -d '
+{
+  "settings": {
+    "index": {
+      "analysis": {
+        "analyzer": {
+          "ngram_analyzer": {
+            "type": "custom",
+            "tokenizer": "my_ngram"
+          }
+        },
+        "tokenizer": {
+          "my_ngram": {
+            "type": "ngram",
+            "min_gram": 2,
+            "max_gram": 2,
+            "token_chars": [
+              "letter",
+              "digit"
+            ]
+          }
+        }
+      }
+    }
+  }
+}
+'
+
+curl -XPOST http://localhost:9200/test/_analyze?pretty -H 'content-type: application/json' -d '
+{
+  "analyzer": "ngram_analyzer",
+  "text": "동해물과 백두산이 마르고 닳도록 하느님이 보우하사 우리나라 만세"
+}
+
+GET /my_index/my_type/_search
+{
+    "query": {
+        "match": {
+            "document": {
+                "query":    "brown fo",
+                "analyzer": "ngram_analyzer" 
+            }
+        }
+    }
+}
+   
+
+query = { "bool": { "should": [ { "term": {"title": "파이"}, }, { "term": {"description": "파이"} } ] } } async def main(): result = await es.search(index=index_name, body={ "query": query, } )
